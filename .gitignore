@@ -1,26 +1,28 @@
-# Python
+# Python bytecode and environments
 __pycache__/
 *.py[cod]
 *.pyo
-
-# Virtual environment
 .venv/
 venv/
 env/
+ENV/
 
-# IDE
+# Editors and operating systems
 .vscode/
+.idea/
+.DS_Store
+Thumbs.db
 
-# Testing and coverage
+# Test and tool caches
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .coverage
 htmlcov/
 
-# Generated data and temporary files
-data/train/
-results/*
-!results/.gitkeep
+# Regenerable training data and model artifacts
+/data/train/*.csv
+/models/*.pkl
+!/models/.gitkeep
 
-# OS files
-.DS_Store
-Thumbs.db
+# Keep the published evaluation table under version control.

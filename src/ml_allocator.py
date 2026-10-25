@@ -15,20 +15,17 @@ def allocate_ml(graph, features, model, k):
     remaining = {v: set(n) for v, n in graph.items()}
     stack = []
 
-    costs = {}
-
-    for v in remaining:
-        X = pd.DataFrame([[
+    variables = list(remaining)
+    X = pd.DataFrame(
+        [[
             features[v]["degree"],
             features[v]["live_range_length"],
-            features[v]["use_frequency"]
-        ]], columns=[
-            "degree",
-            "live_range_length",
-            "use_frequency"
-        ])
-
-        costs[v] = float(model.predict(X)[0])
+            features[v]["use_frequency"],
+        ] for v in variables],
+        index=variables,
+        columns=["degree", "live_range_length", "use_frequency"],
+    )
+    costs = dict(zip(variables, model.predict(X)))
 
     while remaining:
         node = next(
