@@ -1,0 +1,10 @@
+Registers,Measure,Classical Mean Across Seeds,Classical SD Across Seeds,ML Mean Across Seeds,ML SD Across Seeds
+2,Average spills,2.5944,0.1512,2.55,0.1202
+2,Added TAC instructions,7.4611,0.3339,7.2056,0.2835
+2,Allocator time (ms),0.1016,0.0065,29.7631,1.1565
+3,Average spills,1.4389,0.1206,1.4111,0.111
+3,Added TAC instructions,3.5278,0.2275,3.4778,0.2117
+3,Allocator time (ms),0.0908,0.0068,29.885,1.8275
+4,Average spills,0.3611,0.0962,0.3389,0.077
+4,Added TAC instructions,0.8278,0.1456,0.6222,0.1171
+4,Allocator time (ms),0.0771,0.006,30.5631,2.0333

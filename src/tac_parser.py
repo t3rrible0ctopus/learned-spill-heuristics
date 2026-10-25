@@ -18,6 +18,29 @@ def parse_line(line):
             "var": var
         }
 
+    match = re.fullmatch(r"([a-zA-Z_]\w*):", line)
+    if match:
+        return {"type": "label", "label": match.group(1)}
+
+    match = re.fullmatch(r"goto\s+([a-zA-Z_]\w*)", line)
+    if match:
+        return {"type": "goto", "label": match.group(1)}
+
+    match = re.fullmatch(
+        r"if\s+([a-zA-Z_]\w*|-?\d+)\s*(==|!=|<=|>=|<|>)\s*"
+        r"([a-zA-Z_]\w*|-?\d+)\s+goto\s+([a-zA-Z_]\w*)",
+        line,
+    )
+    if match:
+        left, operator, right, label = match.groups()
+        return {
+            "type": "branch",
+            "left": int(left) if re.fullmatch(r"-?\d+", left) else left,
+            "op": operator,
+            "right": int(right) if re.fullmatch(r"-?\d+", right) else right,
+            "label": label,
+        }
+
     match = re.fullmatch(
         r"([a-zA-Z_]\w*)\s*=\s*(.+)",
         line
@@ -77,6 +100,33 @@ def parse_file(filename):
                 raise ValueError(f"Line {line_no}: {e}") from e
 
     return instructions
+
+
+def build_successors(instructions):
+    """Return instruction successors for the supported TAC control flow."""
+    labels = {}
+    for index, instruction in enumerate(instructions):
+        if instruction["type"] == "label":
+            name = instruction["label"]
+            if name in labels:
+                raise ValueError(f"Duplicate label: {name}")
+            labels[name] = index
+
+    successors = []
+    for index, instruction in enumerate(instructions):
+        kind = instruction["type"]
+        fallthrough = [index + 1] if index + 1 < len(instructions) else []
+
+        if kind in ("goto", "branch"):
+            label = instruction["label"]
+            if label not in labels:
+                raise ValueError(f"Undefined label: {label}")
+            target = labels[label]
+            successors.append([target] if kind == "goto" else fallthrough + [target])
+        else:
+            successors.append(fallthrough)
+
+    return successors
 
 
 if __name__ == "__main__":

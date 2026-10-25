@@ -7,6 +7,7 @@ def extract_features(instructions, graph):
     first_def = {}
     last_use = {}
     use_count = {}
+    definition_count = {}
 
     for i, instruction in enumerate(instructions):
         kind = instruction["type"]
@@ -16,6 +17,7 @@ def extract_features(instructions, graph):
 
             if dest not in first_def:
                 first_def[dest] = i
+            definition_count[dest] = definition_count.get(dest, 0) + 1
 
         if kind == "copy":
             uses = [instruction["src"]]
@@ -33,10 +35,16 @@ def extract_features(instructions, graph):
         elif kind == "print":
             uses = [instruction["var"]]
 
+        elif kind == "branch":
+            uses = [
+                value for value in (instruction["left"], instruction["right"])
+                if isinstance(value, str)
+            ]
+
         else:
             uses = []
 
-        for var in uses:
+        for var in set(uses):
             last_use[var] = i
             use_count[var] = use_count.get(var, 0) + 1
 
@@ -49,7 +57,8 @@ def extract_features(instructions, graph):
         features[var] = {
             "degree": len(graph[var]),
             "live_range_length": end - start,
-            "use_frequency": use_count.get(var, 0)
+            "use_frequency": use_count.get(var, 0),
+            "definition_frequency": definition_count.get(var, 0),
         }
 
     return features

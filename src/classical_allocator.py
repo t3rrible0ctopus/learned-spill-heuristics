@@ -1,9 +1,10 @@
 from src.tac_parser import parse_file
 from src.liveness import analyze_liveness
 from src.interference import build_interference
+from src.spill_cost import heuristic_spill_cost
 
 
-def allocate_registers(graph, k):
+def allocate_registers(graph, k, features=None):
     if k < 1:
         raise ValueError("Number of registers must be positive")
 
@@ -18,7 +19,15 @@ def allocate_registers(graph, k):
         )
 
         if node is None:
-            node = max(remaining, key=lambda v: len(remaining[v]))
+            # Optimistically remove the cheapest spill candidate; the final
+            # coloring pass determines whether it actually needs spilling.
+            if features is None:
+                node = min(remaining, key=lambda v: (len(remaining[v]), v))
+            else:
+                node = min(
+                    remaining,
+                    key=lambda v: (heuristic_spill_cost(features[v]), v),
+                )
 
         stack.append(node)
 

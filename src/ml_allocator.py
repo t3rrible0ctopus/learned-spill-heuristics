@@ -16,16 +16,25 @@ def allocate_ml(graph, features, model, k):
     stack = []
 
     variables = list(remaining)
-    X = pd.DataFrame(
-        [[
-            features[v]["degree"],
-            features[v]["live_range_length"],
-            features[v]["use_frequency"],
-        ] for v in variables],
-        index=variables,
-        columns=["degree", "live_range_length", "use_frequency"],
-    )
-    costs = dict(zip(variables, model.predict(X)))
+    if variables:
+        X = pd.DataFrame(
+            [[
+                features[v]["degree"],
+                features[v]["live_range_length"],
+                features[v]["use_frequency"],
+                features[v]["definition_frequency"],
+            ] for v in variables],
+            index=variables,
+            columns=[
+                "degree",
+                "live_range_length",
+                "use_frequency",
+                "definition_frequency",
+            ],
+        )
+        costs = dict(zip(variables, model.predict(X)))
+    else:
+        costs = {}
 
     while remaining:
         node = next(
@@ -37,7 +46,7 @@ def allocate_ml(graph, features, model, k):
             node = min(
                 remaining,
                 key=lambda v: (
-                    costs[v] / (len(remaining[v]) + 1)
+                    costs[v]
                 )
             )
 

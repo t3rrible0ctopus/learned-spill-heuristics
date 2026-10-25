@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *.pyo
 .venv/
+node_modules/
+web/node_modules/
+web/dist/
 venv/
 env/
 ENV/
@@ -22,6 +25,7 @@ htmlcov/
 
 # Regenerable training data and model artifacts
 /data/train/*.csv
+/data/benchmarks/
 /models/*.pkl
 !/models/.gitkeep
 

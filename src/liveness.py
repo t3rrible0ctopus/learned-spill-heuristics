@@ -1,4 +1,4 @@
-from src.tac_parser import parse_file
+from src.tac_parser import build_successors, parse_file
 
 
 def get_use_def(instruction):
@@ -26,14 +26,25 @@ def get_use_def(instruction):
     elif kind == "print":
         uses.add(instruction["var"])
 
+    elif kind == "branch":
+        if isinstance(instruction["left"], str):
+            uses.add(instruction["left"])
+        if isinstance(instruction["right"], str):
+            uses.add(instruction["right"])
+
+    elif kind in ("label", "goto"):
+        pass
+
     else:
         raise ValueError(f"Unsupported instruction type: {kind}")
 
     return uses, defs
 
 
-def analyze_liveness(instructions):
+def analyze_liveness(instructions, successors=None):
     n = len(instructions)
+    if successors is None:
+        successors = build_successors(instructions)
 
     uses = []
     defs = []
@@ -52,11 +63,7 @@ def analyze_liveness(instructions):
         changed = False
 
         for i in range(n - 1, -1, -1):
-            new_out = (
-                live_in[i + 1].copy()
-                if i + 1 < n
-                else set()
-            )
+            new_out = set().union(*(live_in[j] for j in successors[i]))
 
             new_in = uses[i] | (new_out - defs[i])
 
